@@ -13,6 +13,7 @@
 
 #include "stm32f10x.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 /* Scheduler includes. */
 #include "FreeRTOS.h"
@@ -55,6 +56,7 @@ int main(void)
     prvSetupHardware();
 
 	printf("\r\n Welcome to ,Hello WH \r\n");
+	printf("test = %d\n",atoi("123"));
 	printf("\r\n =========line = %d======%s====\r\n",__LINE__,__FILE__);
 	/* create sw timer, 2s */
     Receive_Timer = xTimerCreate((const char*)"ReceiveTimer",\
