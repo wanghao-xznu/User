@@ -34,11 +34,13 @@ void UART1Write(u8 *data, u16 len);
 void UART1_SendByte(u16 Data);
 void Receive_TimeOut(xTimerHandle handle);
 void Updata_TimeOut(xTimerHandle handle);
+void TempAndPower_TimerOut(xTimerHandle handle);
 
 xQueueHandle MsgQueue;
 xQueueHandle CmdMsg;
 xTimerHandle Receive_Timer = NULL;
 xTimerHandle Updata_Timer = NULL;
+xTimerHandle TempAndPower_Timer = NULL;
 
 Running_Message all_message;
 static void prvSetupHardware( void );
@@ -64,6 +66,8 @@ int main(void)
 
     Updata_Timer = xTimerCreate((const char *)"UpdataTimer", \
                                 1000 / portTICK_RATE_MS, pdTRUE, NULL, Updata_TimeOut);
+		TempAndPower_Timer = xTimerCreate((const char *)"TempAndPowerTimer", \
+                                1000 / portTICK_RATE_MS, pdTRUE, NULL, TempAndPower_TimerOut);
     /* ½¨Á¢¶ÓÁÐ */
     MsgQueue = xQueueCreate( USART_REC_LEN , sizeof(char) );
     CmdMsg   = xQueueCreate( 5 , sizeof( int16_t ) );
@@ -110,10 +114,20 @@ void Receive_TimeOut(xTimerHandle handle) //20msµÄtimeout£¬Ê±¼äµ½ÁË½«½ÓÊÕµÄ×Ö·û´
     return;
 }
 
-void Updata_TimeOut(xTimerHandle handle) //20msµÄtimeout£¬Ê±¼äµ½ÁË½«½ÓÊÕµÄ×Ö·û´®ÍÂ³ö
+void Updata_TimeOut(xTimerHandle handle) //1000msµÄtimeout£¬Ê±¼äµ½ÁË½«½ÓÊÕµÄ×Ö·û´®ÍÂ³ö
 {
     //printf("\r\n =========line = %d======%s====\r\n",__LINE__,__FILE__);
+		//ÔÚÕâÀï½«½á¹¹ÌåÖÐÄÚÈÝÈ«²¿·¢ËÍ³öÈ¥£¬ÆäÊµÖ»Òª·¢ËÍÊ±¼ä
+		all_message.Current_Time--;
     return;
+}
+void TempAndPower_TimerOut(xTimerHandle handle) //500msµÄtimeout£¬Ê±¼äµ½ÁË½«½ÓÊÕµÄ×Ö·û´®ÍÂ³ö
+{
+		//·¢ËÍ£¬current time£¬current temperature£¬current power
+		printf("current time  = %d\n", all_message.Current_Time);
+		printf("current temp  = %d\n", all_message.Current_Temperature);
+		printf("current power = %d\n", all_message.Current_Power);
+	
 }
 
 
@@ -360,14 +374,15 @@ void TaskB( void *pvParameters )
                 miao_string[2] = '\0';
 
                 all_message.Setting_Time = 60 * atoi(fen_string) + atoi(miao_string);
-                all_message.Current_duanwei = 0;
+                all_message.Current_duanwei = 1;
                 all_message.Setting_Power = 0;
                 all_message.Setting_Temperature = 0;
                 all_message.Current_Temperature = 0;
                 all_message.Current_Power = 0;
-                all_message.Current_Time = 0;
-                printf("\r\n =========line = %d======%d====\r\n", __LINE__, all_message.Setting_Time);
+                all_message.Current_Time = all_message.Setting_Time;
+                //printf("\r\n =========line = %d======%d====\r\n", __LINE__, all_message.Setting_Time);
                 memset(receive_buf, 0, USART_REC_LEN * sizeof(char));
+								xTimerStart(TempAndPower_Timer, 0);
 
             }
         }
