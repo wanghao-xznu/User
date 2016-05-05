@@ -124,9 +124,9 @@ void Updata_TimeOut(xTimerHandle handle) //1000ms的timeout，时间到了将接收的字符
 void TempAndPower_TimerOut(xTimerHandle handle) //500ms的timeout，时间到了将接收的字符串吐出
 {
 		//发送，current time，current temperature，current power
-		printf("current time  = %d\n", all_message.Current_Time);
-		printf("current temp  = %d\n", all_message.Current_Temperature);
-		printf("current power = %d\n", all_message.Current_Power);
+//		printf("current time  = %d\n", all_message.Current_Time);
+//		printf("current temp  = %d\n", all_message.Current_Temperature);
+//		printf("current power = %d\n", all_message.Current_Power);
 	
 }
 
